@@ -10,8 +10,8 @@ import os
 import platform
 
 # Import Logic
-from logic import growth_rate_fit, calculate_doubling_time, find_best_growth_phase, od_to_cfu_estimate, calculate_cfu_from_plate
-
+from logic import  calculate_doubling_time, find_best_growth_phase, od_to_cfu_estimate, calculate_cfu_from_plate
+#growth_rate_fit, growth_rate
 # --- Global Data Structure ---
 DATA_SERIES = defaultdict(list) 
 
