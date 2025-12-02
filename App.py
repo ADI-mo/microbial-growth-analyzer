@@ -20,14 +20,15 @@ class GrowthApp:
         self.root = root
         self.root.title("Microbial Growth Analyzer - Pro Version")
         
-        # 1. Enlarge Fonts globally
-        self.configure_styles()
+        # Get standard matplotlib colors for cycling
+        self.colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
         
+        self.configure_styles()
         self.setup_ui()
         
     def configure_styles(self):
         style = ttk.Style()
-        style.theme_use('clam') # Usually looks better for styling
+        style.theme_use('clam') 
         style.configure('.', font=('Segoe UI', 11))
         style.configure('Treeview', rowheight=28, font=('Segoe UI', 10))
         style.configure('Treeview.Heading', font=('Segoe UI', 11, 'bold'))
@@ -53,7 +54,7 @@ class GrowthApp:
         self.entry_name.insert(0, "WT Glucose")
         self.entry_name.grid(row=0, column=1, sticky="ew", padx=5, pady=2)
         
-        # Time Units Selection
+        # Time Units
         ttk.Label(settings_frame, text="Time Unit:").grid(row=1, column=0, sticky="w", padx=5)
         self.time_unit_var = tk.StringVar(value="Hours")
         self.combo_units = ttk.Combobox(settings_frame, textvariable=self.time_unit_var, 
@@ -90,8 +91,11 @@ class GrowthApp:
 
         btn_grid = ttk.Frame(entry_frame)
         btn_grid.pack(fill="x", padx=5, pady=5)
+        
+        # Buttons
         ttk.Button(btn_grid, text="Add Point", command=self.add_point).pack(side="left", fill="x", expand=True, padx=2)
-        ttk.Button(btn_grid, text="Remove Selected", command=self.remove_point).pack(side="left", fill="x", expand=True, padx=2)
+        ttk.Button(btn_grid, text="Edit Point", command=self.edit_point).pack(side="left", fill="x", expand=True, padx=2) # NEW BUTTON
+        ttk.Button(btn_grid, text="Remove", command=self.remove_point).pack(side="left", fill="x", expand=True, padx=2)
         
         ttk.Button(entry_frame, text="Load from Excel", command=self.load_file).pack(fill="x", padx=5, pady=2)
 
@@ -106,7 +110,7 @@ class GrowthApp:
         tree_frame = ttk.Frame(left_panel)
         tree_frame.pack(fill="both", expand=True)
         self.tree = ttk.Treeview(tree_frame, columns=("series", "t", "raw", "calc"), show="headings")
-        self.tree.heading("series", text="Series")
+        self.tree.heading("series", text="Series (Color)")
         self.tree.heading("t", text="Time")
         self.tree.heading("raw", text="Input Data")
         self.tree.heading("calc", text="Calc. (CFU/ml)")
@@ -124,11 +128,11 @@ class GrowthApp:
         # --- RIGHT PANEL: Visualization ---
         self.fig = plt.figure(figsize=(7, 6), dpi=100)
         self.ax = self.fig.add_subplot(111)
-        self.fig.subplots_adjust(bottom=0.3) # Make room for table in export
+        self.fig.subplots_adjust(bottom=0.3) 
         self.canvas = FigureCanvasTkAgg(self.fig, master=right_panel)
         self.canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
         
-        # Results Table (Displayed below graph in GUI)
+        # Results Table
         self.res_tree = ttk.Treeview(right_panel, columns=("name", "k", "td", "r2"), show="headings", height=6)
         self.res_tree.heading("name", text="Series")
         self.res_tree.heading("k", text="k (gen/time)")
@@ -181,17 +185,14 @@ class GrowthApp:
             self.entry_dil.pack(side="left", padx=2)
 
     def check_data_consistency(self, new_type):
-        """Ensures all series in the list are of the same type (OD or CFU)."""
         if not DATA_SERIES: return True
-        
-        # Check the first point of the first series
         first_series = next(iter(DATA_SERIES.values()))
         if not first_series: return True
         
         existing_type = first_series[0]['type']
         if existing_type != new_type:
             messagebox.showerror("Type Error", 
-                                 f"Cannot mix data types!\nCurrent data is {existing_type}, you tried to add {new_type}.\nPlease clear all data first.")
+                                 f"Cannot mix data types!\nCurrent is {existing_type}, tried {new_type}.\nClear all data first.")
             return False
         return True
 
@@ -220,25 +221,74 @@ class GrowthApp:
         except ValueError as e:
             messagebox.showerror("Input Error", str(e))
 
+    def edit_point(self):
+        """NEW: Loads selected point into inputs and removes it from list."""
+        selected_item = self.tree.selection()
+        if not selected_item:
+            messagebox.showwarning("Edit Point", "Please select a row to edit.")
+            return
+        
+        item = self.tree.item(selected_item)
+        vals = item['values']
+        series_name = vals[0]
+        time_val = float(vals[1])
+        
+        # Find the actual data point
+        if series_name in DATA_SERIES:
+            points = DATA_SERIES[series_name]
+            target_pt = None
+            idx_to_remove = -1
+            
+            for i, p in enumerate(points):
+                if abs(p['t'] - time_val) < 1e-6:
+                    target_pt = p
+                    idx_to_remove = i
+                    break
+            
+            if target_pt:
+                # 1. Fill Inputs
+                self.entry_name.delete(0, tk.END)
+                self.entry_name.insert(0, series_name)
+                
+                self.entry_t.delete(0, tk.END)
+                self.entry_t.insert(0, str(target_pt['t']))
+                
+                # Check mode consistency before filling value
+                if self.measure_type.get() != target_pt['type']:
+                    self.measure_type.set(target_pt['type'])
+                    self.update_input_fields() # Force refresh fields
+                
+                # Fill specific values
+                self.entry_val.delete(0, tk.END)
+                if target_pt['type'] == 'OD':
+                    self.entry_val.insert(0, str(target_pt['od']))
+                else:
+                    self.entry_val.insert(0, str(target_pt['count']))
+                    self.entry_dil.delete(0, tk.END)
+                    self.entry_dil.insert(0, str(target_pt['dil']))
+                
+                # 2. Remove the old point
+                points.pop(idx_to_remove)
+                if not points: del DATA_SERIES[series_name]
+                
+                self.update_data_table()
+                messagebox.showinfo("Edit Mode", "Point loaded. Modify values and click 'Add Point'.")
+
     def remove_point(self):
         selected_item = self.tree.selection()
         if not selected_item:
             messagebox.showwarning("Select Point", "Please select a row to delete.")
             return
         
-        # Get values from tree
         item = self.tree.item(selected_item)
         vals = item['values']
         series_name = vals[0]
         time_val = float(vals[1])
         
-        # Find and remove from DATA_SERIES
         if series_name in DATA_SERIES:
-            # We filter out the matching point (assuming distinct times per series for simplicity, or first match)
-            # A robust way is to find index.
             points = DATA_SERIES[series_name]
             for i, p in enumerate(points):
-                if abs(p['t'] - time_val) < 1e-6: # Float comparison
+                if abs(p['t'] - time_val) < 1e-6:
                     points.pop(i)
                     break
             if not points: del DATA_SERIES[series_name]
@@ -259,7 +309,17 @@ class GrowthApp:
         except:
             blank, factor, vol = 0, 0, 0.01
 
-        for name, points in DATA_SERIES.items():
+        # Get sorted list of series names to ensure consistent coloring
+        series_names = sorted(DATA_SERIES.keys())
+
+        for idx, name in enumerate(series_names):
+            points = DATA_SERIES[name]
+            # Determine color based on index
+            color = self.colors[idx % len(self.colors)]
+            
+            # Create a tag for this series color
+            self.tree.tag_configure(name, foreground=color)
+
             for p in points:
                 calc_val = 0
                 if p["type"] == "OD":
@@ -271,7 +331,8 @@ class GrowthApp:
                         calc_val = calculate_cfu_from_plate(p['count'], p['dil'], vol)
                     except: calc_val = 0
                 
-                self.tree.insert('', 'end', values=(name, p['t'], raw, f"{calc_val:.2e}"))
+                # Insert with tag
+                self.tree.insert('', 'end', values=(name, p['t'], raw, f"{calc_val:.2e}"), tags=(name,))
 
     def clear_all(self):
         DATA_SERIES.clear()
@@ -311,9 +372,9 @@ class GrowthApp:
         for i in self.res_tree.get_children(): self.res_tree.delete(i)
         
         unit = self.time_unit_var.get()
-        mode = self.measure_type.get() # For Y-axis label
+        mode = self.measure_type.get() 
 
-        # Update Tree headers with units
+        # Update headers
         self.res_tree.heading("k", text=f"k (gen/{unit})")
         self.res_tree.heading("td", text=f"Doubling Time ({unit})")
 
@@ -329,10 +390,11 @@ class GrowthApp:
             messagebox.showerror("Error", "Check Settings.")
             return
 
-        colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
         analysis_results = []
+        series_names = sorted(DATA_SERIES.keys()) # Ensure order matches table color
 
-        for i, (name, points) in enumerate(DATA_SERIES.items()):
+        for i, name in enumerate(series_names):
+            points = DATA_SERIES[name]
             points.sort(key=lambda x: x["t"])
             times, log_cfus = [], []
             
@@ -356,8 +418,9 @@ class GrowthApp:
             
             analysis_results.append([name, f"{k:.3f}", f"{td:.2f}", f"{r2:.3f}"])
 
-            color = colors[i % len(colors)]
-            self.ax.scatter(times, log_cfus, color=color, alpha=0.5, label=f"{name} (Data)")
+            # Use same color cycle logic
+            color = self.colors[i % len(self.colors)]
+            self.ax.scatter(times, log_cfus, color=color, alpha=0.5, label=f"{name}")
             
             fit_t = times[start:end]
             fit_log = log_cfus[start:end]
@@ -366,12 +429,11 @@ class GrowthApp:
                 intercept = np.mean(fit_log) - slope * np.mean(fit_t)
                 x_line = np.linspace(min(fit_t), max(fit_t), 10)
                 y_line = slope * x_line + intercept
-                self.ax.plot(x_line, y_line, color=color, linewidth=2, label=f"{name} (Fit)")
+                self.ax.plot(x_line, y_line, color=color, linewidth=2)
 
             self.res_tree.insert('', 'end', values=(name, f"{k:.3f}", f"{td:.2f}", f"{r2:.3f}"))
 
         self.ax.set_xlabel(f"Time ({unit})")
-        
         if mode == "OD":
              self.ax.set_ylabel("Log2(Est. CFU/ml)")
         else:
@@ -381,7 +443,6 @@ class GrowthApp:
         self.ax.grid(True, alpha=0.3)
         self.canvas.draw()
         
-        # Store results for export
         self.last_results = analysis_results
 
     def export_report(self):
@@ -389,30 +450,24 @@ class GrowthApp:
             filepath = filedialog.asksaveasfilename(defaultextension=".png", filetypes=[("PNG Image", "*.png")])
             if not filepath: return
 
-            # Embed results table into the plot for export
             if hasattr(self, 'last_results') and self.last_results:
                 columns = ["Series", f"k (/{self.time_unit_var.get()})", f"Td ({self.time_unit_var.get()})", "R2"]
                 table_data = [columns] + self.last_results
                 
-                # Create table at the bottom of the figure
                 the_table = plt.table(cellText=table_data,
                                       loc='bottom',
                                       cellLoc='center',
-                                      bbox=[0.0, -0.4, 1.0, 0.25]) # Adjust bbox to fit below graph
+                                      bbox=[0.0, -0.4, 1.0, 0.25])
                 the_table.auto_set_font_size(False)
                 the_table.set_fontsize(9)
-                
-                # Adjust layout to make room for table
                 plt.subplots_adjust(left=0.1, bottom=0.3)
             
             self.fig.savefig(filepath, bbox_inches='tight')
             
-            # Reset layout for GUI view
+            # FIX: Properly clear tables for different Matplotlib versions
             plt.subplots_adjust(bottom=0.1)
-            if hasattr(self, 'last_results'): 
-                # Clear table from GUI view (it's only for export)
-                self.ax.tables.clear()
-                self.canvas.draw()
+            del self.ax.tables[:] # Replaces .clear() which caused the error
+            self.canvas.draw()
 
             if messagebox.askyesno("Export Success", "Open file now?"):
                 sys_plat = platform.system()
