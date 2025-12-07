@@ -8,11 +8,11 @@ This tool is designed for researchers and students who want a complete overview 
 
 ## 🌟 Why is this tool useful? (Key Features)
 
-1.  **Massive Time Saver:** Instead of searching separately on PubMed, Semantic Scholar, and Europe PMC – you get everything in one place.
-2.  **Smart Ranking Algorithm:** The system doesn't just "dump" results. It calculates which article best matches your search terms (is the word in the Title?) and combines that with the Citation Count (Impact).
-3.  **Quality First:** The system prioritizes reliable medical sources (like PubMed) to prevent "noise" from less authoritative sources.
-4.  **Direct File Access:** Automatically detects free **Open Access PDF** links and displays them in a separate button.
-5.  **Data Export:** Save results as a **CSV** (for Excel analysis) or as a readable **Text file**.
+1. **Massive Time Saver:** Instead of searching separately on PubMed, Semantic Scholar, and Europe PMC – you get everything in one place.
+2. **Smart Ranking Algorithm:** The system doesn't just "dump" results. It calculates which article best matches your search terms (is the word in the Title?) and combines that with the Citation Count (Impact).
+3. **Quality First:** The system prioritizes reliable medical sources (like PubMed) to prevent "noise" from less authoritative sources.
+4. **Direct File Access:** Automatically detects free **Open Access PDF** links and displays them in a separate button.
+5. **Data Export:** Save results as a **CSV** (for Excel analysis) or as a readable **Text file**.
 
 ---
 
@@ -21,21 +21,25 @@ This tool is designed for researchers and students who want a complete overview 
 We have performed a comprehensive upgrade to the engine and interface (Backend & GUI):
 
 ### 🧠 Algorithm & Logic Improvements
+
 * **New Relevance Score Model:**
-    * An article gets **100 points** if the search term appears in the **Title**.
-    * An article gets **10 points** if the search term appears in the **Abstract**.
-    * **Special Bonus (5000 points):** Awarded to articles from **PubMed** and **Europe PMC** to ensure reliable medical sources appear at the top of the list.
+
+  * An article gets **100 points** if the search term appears in the **Title**.
+  * An article gets **10 points** if the search term appears in the **Abstract**.
+  * **Special Bonus (5000 points):** Awarded to articles from **PubMed** and **Europe PMC** to ensure reliable medical sources appear at the top of the list.
 * **Combined Sorting Mechanism:** Results are sorted first by **Relevance Score**, and in case of a tie, by **Citation Count (Impact)**.
 * **Decimal Year Fix:** Fixed an issue where years were displayed as `2015.0`. They are now correctly displayed as `2015`.
 * **PLOS Bug Fix:** Fixed an issue that caused PLOS author names to be missing.
 
 ### 🖥️ Interface (GUI) Upgrades
+
 * **Link Separation:** Distinct buttons for the article page (`Open Article`) and the download link (`Open PDF`) to avoid confusion.
 * **Clean View:** Abstracts in the table are truncated to 50 characters ("...") to prevent visual clutter (but are saved fully in the export).
 * **Flexible Export:** A new `EXPORT DATA` button opens a selection window between **CSV** (for tables) and **Text** (for reading).
 * **Smart Filename:** The save filename is automatically generated based on your search term (e.g., `DNA_Repair_results.csv`).
 
 ### 🛠️ Stability
+
 * **Crash Protection:** The system handles missing years, missing abstracts, or momentary network timeouts without crashing.
 * **Code Cleanup:** Removed non-English comments and fixed indentation issues to prevent runtime errors.
 
@@ -46,93 +50,86 @@ We have performed a comprehensive upgrade to the engine and interface (Backend &
 The system is written in Python 3 and uses standard libraries as much as possible to keep it lightweight and fast.
 
 ### 1. Install Python
-Ensure you have [Python 3.10 or higher](https://www.python.org/downloads/) installed on your computer.
+
+Ensure you have Python 3.10 or higher installed.
 
 ### 2. Install Required Libraries
-Open your Terminal (or CMD) and run the following command:
+
+Run:
 
 ```bash
 pip install requests
+```
 
 ## ▶️ How to Run?
 
 ### Option A: Running the Code (For Developers)
 
-1.  Ensure all three files are in the same folder:
-      * `main.py` (The main entry point)
-      * `unified_client.py` (Search engine and logic)
-      * `ncbi_client.py` (PubMed connection)
-2.  Open the terminal in that folder and run:
-    ```bash
-    python main.py
-    ```
+1. Ensure all three files are in the same folder:
+
+   * `main.py`
+   * `unified_client.py`
+   * `ncbi_client.py`
+2. Run:
+
+```bash
+python main.py
+```
 
 ### Option B: Creating an EXE (For Regular Use)
 
-To create a file that runs with a double-click (no VS Code needed):
+Run:
 
-1.  Open the terminal in the project folder.
-2.  Run the command:
-    ```bash
-    pyinstaller --onefile --noconsole --clean --name="ScienceFetcher" main.py
-    ```
-3.  The ready-to-use file will appear in the `dist` folder.
+```bash
+pyinstaller --onefile --noconsole --clean --name="ScienceFetcher" main.py
+```
 
------
+Then open the `dist` folder.
+
+---
 
 ## 🤖 AI Usage & Transparency
 
-This project was developed with the assistance of Generative AI tools (LLMs). The AI acted as a "Pair Programmer" throughout the development cycle.
-
-### Methodology
-
-The development process involved an iterative dialogue where requirements were defined, code was generated, and bugs were resolved based on error logs provided by the developer.
+This project was developed with the assistance of Generative AI tools (LLMs). The AI acted as a "Pair Programmer".
 
 ### Prompts & Commands Used
 
-The following types of prompts were used to guide the AI in building this software:
+Examples:
 
-1.  **Architecture Setup:**
+1. **Architecture Setup:**
 
-    > "Create a Python project with a modular structure. I need a client to fetch data from NCBI PubMed using their API and parse the XML response."
+   > "Create a Python project with a modular structure..."
 
-2.  **Multi-Source Expansion:**
+2. **Multi-Source Expansion:**
 
-    > "Extend the search capability to include Semantic Scholar, Europe PMC, and OpenAlex. Merge duplicates based on the article title."
+   > "Extend the search capability to include Semantic Scholar, Europe PMC..."
 
-3.  **Algorithm Design:**
+3. **Algorithm Design:**
 
-    > "The search results are not sorted correctly. Implement a 'Relevance Score' algorithm: give 100 points if the keyword is in the title, and 10 points if it is in the abstract. Prioritize PubMed results."
+   > "Implement a 'Relevance Score' algorithm..."
 
-4.  **GUI Development:**
+4. **GUI Development:**
 
-    > "Build a GUI using Tkinter. It should have a search bar, a scrollable text area for results, and buttons to open links. Make sure it supports right-click paste."
+   > "Build a GUI using Tkinter..."
 
-5.  **Debugging & Refinement:**
+5. **Debugging & Refinement:**
 
-    > "I am getting an `IndentationError` in `unified_client.py`. Please fix the code structure and remove any circular imports in `ncbi_client.py`."
+   > "I am getting an IndentationError..."
 
-6.  **Feature Implementation:**
+6. **Feature Implementation:**
 
-    > "Add a feature to export the search results to a CSV file. The filename should automatically include the search term."
+   > "Add a feature to export the search results..."
 
-**Verification:** All AI-generated code was reviewed, tested, and integrated by the human developer to ensure accuracy, security, and functionality.
-
------
+---
 
 ## 📚 Data Sources Used
 
-The system scans the following databases simultaneously:
+1. **PubMed**
+2. **Semantic Scholar**
+3. **Europe PMC**
+4. **OpenAlex**
+5. **PLOS**
 
-1.  **PubMed:** (Top Priority) - The world's leading medical database.
-2.  **Semantic Scholar:** AI-based engine providing excellent Citation data.
-3.  **Europe PMC:** European repository often containing Open Access papers not found in PubMed.
-4.  **OpenAlex:** Massive index of articles, used to fill in missing data (like citation counts).
-5.  **PLOS:** Publisher of Open Access articles only.
+---
 
------
-
-**Happy Researching\! 🎓**
-
-``` העבר לקובץ  אחיד  
-```
+**Happy Researching! 🎓**
