@@ -187,7 +187,7 @@ class PlosClient:
             if start_year:
                  q += f' AND publication_date:[{start_year}-01-01T00:00:00Z TO *]'
             
-            r = requests.get(self.BASE_URL, params={"q": q, "wt":"json", "rows":max_results, "fl":"id,title,journal,auth_display,abstract,publication_date,score"}, timeout=10).json()
+            r = requests.get(self.BASE_URL, params={"q": q, "wt":"json", "rows":max_results, "fl":"id,title,journal,author_display,abstract,publication_date,score"}, timeout=10).json()
             return self._parse(r)
         except: return []
     
@@ -196,7 +196,7 @@ class PlosClient:
         for d in data.get("response", {}).get("docs", []):
             doi = d.get("id", "")
             url = f"https://journals.plos.org/plosone/article?id={doi}" if doi else "N/A"
-            authors_list = d.get("auth_display", [])
+            authors_list = d.get("author_display", []) or d.get("auth_display", [])
             authors_str = ", ".join(authors_list) if isinstance(authors_list, list) else str(authors_list)
 
             res.append({
@@ -234,8 +234,11 @@ class UnifiedSearchManager:
 
     def _extract_year(self, date_str):
         if not date_str: return "N/A"
-        match = re.search(r'\d{4}', str(date_str))
-        return match.group(0) if match else "N/A"
+        try:
+            return str(int(float(str(date_str))))
+        except:
+            match = re.search(r'\d{4}', str(date_str))
+            return match.group(0) if match else "N/A"
 
     def calculate_score(self, paper, query):
         score = 0
@@ -282,7 +285,6 @@ class UnifiedSearchManager:
             if not isinstance(cites, int):
                 paper['citations'] = 0
 
-        # Sort: Relevance DESC, then Citations DESC
         enriched.sort(key=lambda x: (-x['relevance_score'], -x['citations']))
         
         return enriched
