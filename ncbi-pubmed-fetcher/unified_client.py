@@ -14,8 +14,6 @@ class PubMedWrapper:
     
     def search(self, term, start_year=None, max_results=5):
         try:
-            # Smart Search & Date Filtering via Query Expansion
-            # We append the date range directly to the query string for PubMed
             final_term = term
             if start_year:
                 current_year = get_current_year()
@@ -26,13 +24,11 @@ class PubMedWrapper:
             
             for item in data:
                 item['source'] = "PubMed"
-                item['citations'] = "N/A" # PubMed XML doesn't easily give citation counts without extra calls
-                item['pdf_url'] = "N/A"   # PubMed is a catalog, rarely has direct PDF links
-                
+                item['citations'] = "N/A"
+                item['pdf_url'] = "N/A"
                 pmid = item.get('pmid')
                 if pmid:
                     item['url'] = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"
-                    # Try to construct a DOI if missing, for cross-referencing later
                     if 'doi' not in item:
                         item['doi'] = None 
                 else:
@@ -47,7 +43,6 @@ class SemanticScholarClient:
     BASE_URL = "https://api.semanticscholar.org/graph/v1/paper/search"
     
     def search(self, term, start_year=None, max_results=5):
-        # Date Range Logic
         year_range = ""
         if start_year:
             year_range = f"{start_year}-{get_current_year()}"
@@ -56,7 +51,6 @@ class SemanticScholarClient:
             "query": term, 
             "limit": max_results, 
             "fieldsOfStudy": "Biology,Medicine",
-            # Requesting Citation Count and Open Access PDF
             "fields": "title,authors,year,abstract,journal,url,isOpenAccess,openAccessPdf,citationCount,externalIds"
         }
         
@@ -66,19 +60,19 @@ class SemanticScholarClient:
         try:
             r = requests.get(self.BASE_URL, params=params, headers={"User-Agent": "Bot"}, timeout=10).json()
             return self._parse(r)
-        except: return []
+        except Exception as e:
+            print(f"Semantic Error: {e}")
+            return []
 
     def _parse(self, data):
         res = []
         for p in data.get("data", []):
             auth = ", ".join([a["name"] for a in p.get("authors", [])[:3]])
             
-            # PDF Logic
             pdf_link = "N/A"
             if p.get("openAccessPdf"):
                 pdf_link = p.get("openAccessPdf", {}).get("url", "N/A")
             
-            # DOI for cross-referencing
             doi = p.get("externalIds", {}).get("DOI")
 
             res.append({
@@ -95,20 +89,24 @@ class SemanticScholarClient:
             })
         return res
 
-# --- 3. Europe PMC Client ---
+# --- 3. Europe PMC Client (Fixed!) ---
 class EuropePmcClient:
     BASE_URL = "https://www.ebi.ac.uk/europepmc/webservices/rest/search"
     
     def search(self, term, start_year=None, max_results=5):
-        # Query Expansion with Date
-        query = f"{term} AND (SRC:PPR OR SRC:MED) AND LANGUAGE:english"
+        # Simplified query to ensure results
+        query = term
         if start_year:
             query += f" AND PUB_YEAR:[{start_year} TO {get_current_year()}]"
 
         params = {"query": query, "format": "json", "pageSize": max_results}
         try:
-            return self._parse(requests.get(self.BASE_URL, params=params, timeout=10).json())
-        except: return []
+            response = requests.get(self.BASE_URL, params=params, timeout=10)
+            response.raise_for_status() # This will catch 404/500 errors
+            return self._parse(response.json())
+        except Exception as e:
+            print(f"EuropePMC Error: {e}") # This will print why it failed!
+            return []
 
     def _parse(self, data):
         res = []
@@ -117,12 +115,13 @@ class EuropePmcClient:
             doi = i.get("doi")
             url = f"https://europepmc.org/article/MED/{pmid}" if pmid else "N/A"
             
-            # Citations (EuropePMC gives citedByCount)
             cites = i.get("citedByCount", 0)
-            
-            # PDF (sometimes in fullTextUrlList)
             pdf = "N/A"
-            # (Parsing EuropePMC deep links for PDF is complex, leaving simplified)
+            if i.get("fullTextUrlList"):
+                for link in i.get("fullTextUrlList", {}).get("fullTextUrl", []):
+                    if link.get("documentStyle") == "pdf":
+                        pdf = link.get("url")
+                        break
 
             res.append({
                 "title": i.get("title"), 
@@ -144,7 +143,6 @@ class OpenAlexClient:
     
     def search(self, term, start_year=None, max_results=5):
         try:
-            # Filter logic
             filters = "has_abstract:true,language:en"
             if start_year:
                 filters += f",from_publication_date:{start_year}-01-01"
@@ -153,10 +151,12 @@ class OpenAlexClient:
                 "search": term, 
                 "per-page": max_results, 
                 "filter": filters,
-                "sort": "cited_by_count:desc" # Sort by Impact!
+                "sort": "cited_by_count:desc"
             }
             return self._parse(requests.get(self.BASE_URL, params=params, timeout=10).json())
-        except: return []
+        except Exception as e:
+            print(f"OpenAlex Error: {e}")
+            return []
 
     def _parse(self, data):
         res = []
@@ -173,7 +173,6 @@ class OpenAlexClient:
             doi = i.get("doi")
             if doi: doi = doi.replace("https://doi.org/", "")
             
-            # Metrics & PDF
             citations = i.get("cited_by_count", 0)
             pdf_url = i.get("open_access", {}).get("oa_url", "N/A")
 
@@ -196,14 +195,16 @@ class PlosClient:
     BASE_URL = "http://api.plos.org/search"
     def search(self, term, start_year=None, max_results=5):
         try:
-            # Boolean logic works natively in Solr/PLOS ("DNA" AND "RNA")
             q = f'title:"{term}" OR abstract:"{term}"'
             if start_year:
                  q += f' AND publication_date:[{start_year}-01-01T00:00:00Z TO *]'
             
             r = requests.get(self.BASE_URL, params={"q": q, "wt":"json", "rows":max_results, "fl":"id,title,journal,auth_display,abstract,publication_date,score"}, timeout=10).json()
             return self._parse(r)
-        except: return []
+        except Exception as e:
+            print(f"PLOS Error: {e}")
+            return []
+
     def _parse(self, data):
         res = []
         for d in data.get("response", {}).get("docs", []):
@@ -237,13 +238,8 @@ class UnifiedSearchManager:
         ]
 
     def search_all(self, term, active_sources=None, limit_per_source=5, start_year=None):
-        """
-        Main entry point. 
-        start_year: int (e.g., 2018). If None, defaults to 10 years ago to ensure recency.
-        """
         if active_sources is None: active_sources = self.clients.keys()
         
-        # Default Recency Logic (Last 10 years if not specified)
         if start_year is None:
             start_year = get_current_year() - 10
 
@@ -252,7 +248,6 @@ class UnifiedSearchManager:
             future_to_source = {}
             for name in active_sources:
                 if name in self.clients:
-                    # Pass the start_year to all clients
                     future_to_source[executor.submit(self.clients[name].search, term, start_year, limit_per_source)] = name
             
             for future in concurrent.futures.as_completed(future_to_source):
@@ -261,13 +256,10 @@ class UnifiedSearchManager:
                     all_results.extend(data)
                 except Exception: pass
 
-        # 1. Merge duplicates
         merged = self._merge_and_deduplicate(all_results)
-        
-        # 2. Enrich missing data (Cross-Referencing Logic)
         enriched = self._enrich_missing_data(merged)
         
-        # 3. Sort by Impact (Citation count)
+        # Sort by citations (safely handling N/A)
         enriched.sort(key=lambda x: int(x.get('citations', 0)) if isinstance(x.get('citations'), int) else 0, reverse=True)
         
         return enriched
@@ -299,10 +291,6 @@ class UnifiedSearchManager:
         return final_list
 
     def _enrich_missing_data(self, results):
-        """
-        Cross-Referencing: If abstract is missing but DOI exists, query OpenAlex/SemanticScholar
-        to fill the holes.
-        """
         for item in results:
             abstract = item.get('abstract', '')
             doi = item.get('doi')
@@ -310,30 +298,25 @@ class UnifiedSearchManager:
             is_empty = not abstract or abstract == "No Abstract Available." or len(abstract) < 50
             
             if is_empty and doi:
-                # Try to fetch from OpenAlex using DOI (It's fast and free)
                 try:
                     clean_doi = doi.replace("https://doi.org/", "")
                     url = f"https://api.openalex.org/works/https://doi.org/{clean_doi}"
                     r = requests.get(url, timeout=3)
                     if r.status_code == 200:
                         data = r.json()
-                        # Extract Abstract
                         abs_idx = data.get("abstract_inverted_index")
                         if abs_idx:
                             word_list = sorted([(pos, w) for w, positions in abs_idx.items() for pos in positions])
                             new_abstract = " ".join([w[1] for w in word_list])
                             item['abstract'] = new_abstract + " [Enriched via OpenAlex]"
                         
-                        # Extract PDF if we didn't have one
                         if item.get('pdf_url') == "N/A":
                              item['pdf_url'] = data.get("open_access", {}).get("oa_url", "N/A")
                         
-                        # Extract Citations if we didn't have them
                         if item.get('citations') == "N/A":
                              item['citations'] = data.get("cited_by_count", 0)
 
-                except Exception:
-                    pass # Fail silently, keep original data
+                except Exception: pass
         return results
 
     def save_data(self, data, filename):
