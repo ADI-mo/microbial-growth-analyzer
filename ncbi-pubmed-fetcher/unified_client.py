@@ -233,6 +233,7 @@ class UnifiedSearchManager:
         ]
 
     def _extract_year(self, date_str):
+        # Fix decimal year issue (2015.0 -> 2015)
         if not date_str: return "N/A"
         try:
             return str(int(float(str(date_str))))
@@ -253,6 +254,14 @@ class UnifiedSearchManager:
                 score += 100
             elif term in abstract_lower:
                 score += 10
+        
+        # Bonus for high quality sources to keep them at top
+        source = paper.get('source', '')
+        if source == "PubMed":
+            score += 5000
+        elif source == "Europe PMC":
+            score += 2000
+            
         return score
 
     def search_all(self, term, active_sources=None, limit_per_source=5, start_year=None, only_free=False):
@@ -285,6 +294,7 @@ class UnifiedSearchManager:
             if not isinstance(cites, int):
                 paper['citations'] = 0
 
+        # Sort: Relevance DESC, then Citations DESC
         enriched.sort(key=lambda x: (-x['relevance_score'], -x['citations']))
         
         return enriched
@@ -355,6 +365,7 @@ class UnifiedSearchManager:
             return False
 
     def save_to_text(self, data, filename):
+        """Save results as a readable text file"""
         try:
             with open(filename, 'w', encoding='utf-8') as f:
                 f.write("SCIENTIFIC SEARCH RESULTS\n")
