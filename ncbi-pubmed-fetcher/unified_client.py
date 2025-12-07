@@ -2,6 +2,7 @@ import requests
 import concurrent.futures
 import datetime
 import csv
+import re
 from ncbi_client import NCBIClient
 
 def get_current_year():
@@ -19,7 +20,6 @@ class PubMedWrapper:
                 current_year = get_current_year()
                 final_term += f" AND {start_year}:{current_year}[dp]"
             
-            # פילטר לגישה חופשית ב-PubMed
             if only_free:
                 final_term += " AND (free full text[Filter])"
 
@@ -28,7 +28,7 @@ class PubMedWrapper:
             
             for item in data:
                 item['source'] = "PubMed"
-                item['citations'] = 0 # PubMed rarely gives this
+                item['citations'] = 0 
                 item['pdf_url'] = "Check Link"
                 pmid = item.get('pmid')
                 item['url'] = f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/" if pmid else "https://pubmed.ncbi.nlm.nih.gov/"
@@ -51,13 +51,10 @@ class SemanticScholarClient:
         if start_year:
             params["year"] = f"{start_year}-{get_current_year()}"
         
-        # Semantic Scholar filter logic happens partly in parsing
         try:
             r = requests.get(self.BASE_URL, params=params, headers={"User-Agent": "Bot"}, timeout=10).json()
             results = self._parse(r)
-            
             if only_free:
-                # מסנן רק אם יש PDF זמין
                 return [r for r in results if r['pdf_url'] != "N/A"]
             return results
         except: return []
@@ -91,7 +88,6 @@ class EuropePmcClient:
         query = term
         if start_year:
             query += f" AND PUB_YEAR:[{start_year} TO {get_current_year()}]"
-        
         if only_free:
             query += " AND (OPEN_ACCESS:y)"
 
@@ -129,17 +125,15 @@ class EuropePmcClient:
             })
         return res
 
-# --- 4. OpenAlex Client (Fixed: Articles only) ---
+# --- 4. OpenAlex Client ---
 class OpenAlexClient:
     BASE_URL = "https://api.openalex.org/works"
     
     def search(self, term, start_year=None, max_results=5, only_free=False):
         try:
-            # הוספתי type:article כדי להעיף ספרים
             filters = "has_abstract:true,language:en,type:article"
             if start_year:
                 filters += f",from_publication_date:{start_year}-01-01"
-            
             if only_free:
                 filters += ",is_oa:true"
 
@@ -184,12 +178,11 @@ class OpenAlexClient:
             })
         return res
 
-# --- 5. PLOS Client (Fixed Authors) ---
+# --- 5. PLOS Client ---
 class PlosClient:
     BASE_URL = "http://api.plos.org/search"
     def search(self, term, start_year=None, max_results=5, only_free=False):
         try:
-            # PLOS is always free :)
             q = f'title:"{term}" OR abstract:"{term}"'
             if start_year:
                  q += f' AND publication_date:[{start_year}-01-01T00:00:00Z TO *]'
@@ -203,8 +196,6 @@ class PlosClient:
         for d in data.get("response", {}).get("docs", []):
             doi = d.get("id", "")
             url = f"https://journals.plos.org/plosone/article?id={doi}" if doi else "N/A"
-            
-            # Fix authors parsing
             authors_list = d.get("auth_display", [])
             authors_str = ", ".join(authors_list) if isinstance(authors_list, list) else str(authors_list)
 
@@ -217,7 +208,7 @@ class PlosClient:
                 "source": "PLOS", 
                 "url": url,
                 "citations": 0, 
-                "pdf_url": url, # PLOS is open access, main link is fine
+                "pdf_url": url,
                 "doi": doi
             })
         return res
@@ -241,6 +232,26 @@ class UnifiedSearchManager:
             "PLOS"
         ]
 
+    def _extract_year(self, date_str):
+        if not date_str: return "N/A"
+        match = re.search(r'\d{4}', str(date_str))
+        return match.group(0) if match else "N/A"
+
+    def calculate_score(self, paper, query):
+        score = 0
+        if not query: return 0
+        
+        query_terms = query.lower().split()
+        title_lower = (paper.get('title') or '').lower()
+        abstract_lower = (paper.get('abstract') or '').lower()
+
+        for term in query_terms:
+            if term in title_lower:
+                score += 100
+            elif term in abstract_lower:
+                score += 10
+        return score
+
     def search_all(self, term, active_sources=None, limit_per_source=5, start_year=None, only_free=False):
         if active_sources is None: active_sources = self.clients.keys()
         
@@ -263,8 +274,16 @@ class UnifiedSearchManager:
         merged = self._merge_and_deduplicate(all_results)
         enriched = self._enrich_missing_data(merged)
         
-        # Sort by citations (Impact)
-        enriched.sort(key=lambda x: int(x.get('citations', 0)) if isinstance(x.get('citations'), int) else 0, reverse=True)
+        # --- Scoring & Sorting ---
+        for paper in enriched:
+            paper['year'] = self._extract_year(paper.get('year'))
+            paper['relevance_score'] = self.calculate_score(paper, term)
+            cites = paper.get('citations')
+            if not isinstance(cites, int):
+                paper['citations'] = 0
+
+        # Sort: Relevance DESC, then Citations DESC
+        enriched.sort(key=lambda x: (-x['relevance_score'], -x['citations']))
         
         return enriched
 
@@ -276,7 +295,6 @@ class UnifiedSearchManager:
             return 99
         
         all_items.sort(key=get_priority)
-
         final_list = []
         seen_titles = set()
         
@@ -294,14 +312,10 @@ class UnifiedSearchManager:
         return final_list
 
     def _enrich_missing_data(self, results):
-        """If impact/citations are missing (0), try to fetch from OpenAlex"""
         for item in results:
             doi = item.get('doi')
-            
-            # --- התיקון הקריטי למניעת קריסה ---
             abstract_text = item.get('abstract') or ""
             needs_abstract = len(abstract_text) < 50
-            
             needs_citations = item.get('citations') == 0
             
             if (needs_abstract or needs_citations) and doi:
@@ -311,38 +325,47 @@ class UnifiedSearchManager:
                     r = requests.get(url, timeout=3)
                     if r.status_code == 200:
                         data = r.json()
-                        
-                        # Enrich Abstract
                         if needs_abstract:
                             abs_idx = data.get("abstract_inverted_index")
                             if abs_idx:
                                 word_list = sorted([(pos, w) for w, positions in abs_idx.items() for pos in positions])
                                 new_abstract = " ".join([w[1] for w in word_list])
                                 item['abstract'] = new_abstract + " [Enriched]"
-                        
-                        # Enrich PDF
                         if item.get('pdf_url') == "N/A":
                              item['pdf_url'] = data.get("open_access", {}).get("oa_url", "N/A")
-                        
-                        # Enrich Citations (Impact)
                         if needs_citations:
                              item['citations'] = data.get("cited_by_count", 0)
-
                 except Exception: pass
         return results
 
     def save_to_csv(self, data, filename):
-        """New Feature: Save as CSV/Excel compatible"""
-        keys = ["source", "title", "citations", "year", "journal", "authors", "url", "pdf_url", "abstract"]
+        keys = ["source", "title", "citations", "relevance_score", "year", "journal", "authors", "url", "pdf_url", "abstract"]
         try:
             with open(filename, 'w', newline='', encoding='utf-8-sig') as f:
                 writer = csv.DictWriter(f, fieldnames=keys)
                 writer.writeheader()
                 for item in data:
-                    # Filter only keys we want
                     filtered_item = {k: item.get(k, "N/A") for k in keys}
                     writer.writerow(filtered_item)
             return True
         except Exception as e:
             print(f"CSV Error: {e}")
+            return False
+
+    def save_to_text(self, data, filename):
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write("SCIENTIFIC SEARCH RESULTS\n")
+                f.write("=========================\n\n")
+                for i, item in enumerate(data, 1):
+                    f.write(f"Result #{i}\n")
+                    f.write(f"Title: {item.get('title')}\n")
+                    f.write(f"Source: {item.get('source')} | Year: {item.get('year')}\n")
+                    f.write(f"Citations: {item.get('citations')} | Relevance: {item.get('relevance_score')}\n")
+                    f.write(f"Link: {item.get('url')}\n")
+                    f.write(f"Abstract: {item.get('abstract')}\n")
+                    f.write("-" * 50 + "\n\n")
+            return True
+        except Exception as e:
+            print(f"TXT Error: {e}")
             return False
