@@ -1,0 +1,154 @@
+================================================================
+  SCIENTIFIC SEARCH RESULTS EXPORT
+================================================================
+
+Result #1  [PubMed]
+----------------------------------------
+TITLE:    Humoral Immunity vs. 
+LINK:     https://pubmed.ncbi.nlm.nih.gov/32038650/
+JOURNAL:  Frontiers in immunology (2019)
+AUTHORS:  Takaya A, Yamamoto T, Tokoyoda K
+
+ABSTRACT:
+In primary infection with Salmonella, it has been reported-without consideration of Salmonella's functions-that humoral immunity plays no role in the clearance of bacteria. In fact, Salmonella targets and suppresses several aspects of humoral immunity, including B cell lymphopoiesis, B cell activation, and IgG production. In particular, the suppression of IgG-secreting plasma cell maintenance allows the persistence of Salmonella in tissues. Therefore, the critical role(s) of humoral immunity in the response to Salmonella infection, especially at the late phase, should be re-investigated. The suppression of IgG plasma cell memory strongly hinders vaccine development against non-typhoidal Salmonella (NTS) because Salmonella can also reduce humoral immune memory against other bacteria and viruses, obtained from previous vaccination or infection. We propose a new vaccine against Salmonella that would not impair humoral immunity, and which could also be used as a treatment for antibody-dependent autoimmune diseases to deplete pathogenic long-lived plasma cells, by utilizing the Salmonella's own suppression mechanism of humoral immunity.
+
+================================================================================
+
+Result #2  [PubMed]
+----------------------------------------
+TITLE:    No Title
+LINK:     https://pubmed.ncbi.nlm.nih.gov/39693143/
+JOURNAL:  eLife (2024)
+AUTHORS:  Hajra D, Rajmani RS, Chaudhary AD, Gupta SK, Chakravortty D
+
+ABSTRACT:
+Sirtuins are the major players in host immunometabolic regulation. However, the role of sirtuins in the modulation of the immune metabolism pertaining to salmonellosis is largely unknown. Here, our investigation focussed on the role of two important sirtuins, SIRT1 and SIRT3, shedding light on their impact on intracellular Salmonella's metabolic switch and pathogenesis establishment. Our study indicated the ability of the live Salmonella Typhimurium to differentially regulate the levels of SIRT1 and SIRT3 for maintaining the high glycolytic metabolism and low fatty acid metabolism in Salmonella. Perturbing SIRT1 or SIRT3 through knockdown or inhibition resulted in a remarkable shift in the host metabolism to low fatty acid oxidation and high glycolysis. This switch led to decreased proliferation of Salmonella in the macrophages. Further, Salmonella-induced higher levels of SIRT1 and SIRT3 led to a skewed polarization state of the macrophages from a pro-inflammatory M1 state toward an immunosuppressive M2, making it more conducive for the intracellular life of Salmonella. Alongside, governing immunological functions by modulating p65 NF-κB acetylation, SIRT1, and SIRT3 also skew Salmonella-induced host metabolic switch by regulating the acetylation status of HIF-1α and PDHA1. Interestingly, though knockdown of SIRT1/3 attenuated Salmonella proliferation in macrophages, in in vivo mice model of infection, inhibition or knockdown of SIRT1/3 led to more dissemination and higher organ burden, which can be attributed to enhanced ROS and IL-6 production. Our study hence reports for the first time that Salmonella modulates SIRT1/3 levels to maintain its own metabolism for successful pathogenesis.
+
+================================================================================
+
+Result #3  [PubMed]
+----------------------------------------
+TITLE:    Salmonella-based therapeutic strategies: improving tumor microenvironment and bringing new hope for cancer immunotherapy.
+LINK:     https://pubmed.ncbi.nlm.nih.gov/39666238/
+JOURNAL:  Medical oncology (Northwood, London, England) (2024)
+AUTHORS:  He X, Guo J, Bai Y, Sun H, Yang J
+
+ABSTRACT:
+Immunotherapy has revolutionized cancer treatment, yet its effectiveness is limited by immunosuppressive tumor microenvironment (TME). To overcome this challenge, innovative strategies to effectively modulate the TME are urgently needed. Over the past decades, bacteria-mediated cancer immunotherapy has recaptured increasing attention, driven by advances in synthetic biology, genetic engineering and our knowledge of host-pathogen interactions. Among various bacterial species, Salmonella has emerged as a leading candidate with significant therapeutic potential due to its broad-spectrum anti-tumor activity, tumor-targeting ability, immunomodulatory effects, oncolytic properties, genetic programmability, and engineering flexibility. These characteristics enable Salmonella to reshape the immunosuppressive TME, thereby enhancing anti-tumor efficacy. This review elaborates the regulatory effects of Salmonella on key components of the TME, the versatile engineering strategies for optimizing Salmonella's ability to modulate the TME, and recent advancements in combination cancer therapies. We also summarize current clinical applications and discuss challenges of developing safer and more effective Salmonella-based cancer immunotherapy.
+
+================================================================================
+
+Result #4  [OpenAlex]
+----------------------------------------
+TITLE:    Revised methods for the Salmonella mutagenicity test
+LINK:     https://openalex.org/W2005156172
+JOURNAL:  Mutation Research/Environmental Mutagenesis and Related Subjects (1983)
+AUTHORS:  Dorothy M. Maron, Bruce N. Ames
+
+ABSTRACT:
+Abstract Available at Source.
+
+================================================================================
+
+Result #5  [OpenAlex]
+----------------------------------------
+TITLE:    Escherichia coli and Salmonella :cellular and molecular biology
+LINK:     https://openalex.org/W1512810258
+JOURNAL:  ASM Press eBooks (1996)
+AUTHORS:  Frederick C. Neidhardt
+
+ABSTRACT:
+Preface The Enteric Bacterial Cell and the Age of Bacteria Variations on a Theme by Escherichia Part I: Molecular Architecture and Assembly of Cell Parts (11 chapters) Part II: Metabolism and General Physiology (58 chapters) Part III: Utilization of Energy for Cell Activities (7 chapters) Part IV: Regulation of Gene Expression (19 chapters) Part V: Growth of Cells and Cultures (12 chapters) Part VI: Genome, Genetics and Evolution (40 chapters) Part VII: Molecular Pathogenesis (7 chapters)
+
+================================================================================
+
+Result #6  [OpenAlex]
+----------------------------------------
+TITLE:    Methods for detecting carcinogens and mutagens with the salmonella/mammalian-microsome mutagenicity test
+LINK:     https://openalex.org/W1973195696
+JOURNAL:  Mutation Research/Environmental Mutagenesis and Related Subjects (1975)
+AUTHORS:  Bruce N. Ames, Joyce McCann, Edith F. Yamasaki
+
+ABSTRACT:
+Abstract Available at Source.
+
+================================================================================
+
+Result #7  [PLOS]
+----------------------------------------
+TITLE:    Rapid detection and differentiation of Salmonella species, Salmonella Typhimurium and Salmonella Enteritidis by multiplex quantitative PCR
+LINK:     https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0206316
+JOURNAL:  PLOS ONE (2018)
+AUTHORS:  
+
+ABSTRACT:
+
+A multiplex quantitative PCR (qPCR) was developed and evaluated for the simultaneous detection of Salmonella spp., S. enterica serovar Typhimurium and S. enterica serovar Enteritidis in various (food) matrices. Early and fast detection of these pathogens facilitates effective intervention and prevents further distribution of contaminated food products on the market. Three primer and probe sets were designed to target the invA gene, the STM4200 gene, and the SEN1392 gene to detect and differentiate Salmonella spp., S. Typhimurium, and S. Enteritidis, respectively. The multiplex qPCR targeting these three genes was optimized for efficiency and linearity. By testing 225 Salmonella isolates and 34 non-Salmonella isolates from various sources the inclusivity and exclusivity were determined. The inclusivity of the multiplex qPCR was 100% for all Salmonella isolates, including 72 S. Typhimurium isolates, and 53 S. Enteritidis isolates. The exclusivity for Salmonella spp., S. Typhimurium, and S. Enteritidis was 100%, 94.6%, and 100%, respectively. No positive results were reported for non-Salmonella isolates. The limit of detection (LOD) for the qPCR was determined for the matrices poultry, minced meat, egg, herbs/spices, powdered milk, fish, animal feed, boot-socks with chicken feces and chicken down. LOD values for qPCR and the conventional culture methods were similar, except for the matrix boot-socks and down, for which the LOD for the conventional culture methods performed better than the qPCR method. In conclusion, the multiplex qPCR assay developed allows for rapid screening of Salmonella spp., S. Typhimurium, and S. Enteritidis in various (food) matrices.
+
+
+================================================================================
+
+Result #8  [PLOS]
+----------------------------------------
+TITLE:    lac Repressor Is an Antivirulence Factor of Salmonella enterica: Its Role in the Evolution of Virulence in Salmonella
+LINK:     https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0005789
+JOURNAL:  PLoS ONE (2009)
+AUTHORS:  
+
+ABSTRACT:
+
+The genus Salmonella includes many pathogens of great medical and veterinary importance. Bacteria belonging to this genus are very closely related to those belonging to the genus Escherichia. lacZYA operon and lacI are present in Escherichia coli, but not in Salmonella enterica. It has been proposed that Salmonella has lost lacZYA operon and lacI during evolution. In this study, we have investigated the physiological and evolutionary significance of the absence of lacI in Salmonella enterica. Using murine model of typhoid fever, we show that the expression of LacI causes a remarkable reduction in the virulence of Salmonella enterica. LacI also suppresses the ability of Salmonella enterica to proliferate inside murine macrophages. Microarray analysis revealed that LacI interferes with the expression of virulence genes of Salmonella pathogenicity island 2. This effect was confirmed by RT-PCR and Western blot analysis. Interestingly, we found that SBG0326 of Salmonella bongori is homologous to lacI of Escherichia coli. Salmonella bongori is the only other species of the genus Salmonella and it lacks the virulence genes of Salmonella pathogenicity island 2. Overall, our results demonstrate that LacI is an antivirulence factor of Salmonella enterica and suggest that absence of lacI has facilitated the acquisition of virulence genes of Salmonella pathogenicity island 2 in Salmonella enterica making it a successful systemic pathogen.
+
+
+================================================================================
+
+Result #9  [PLOS]
+----------------------------------------
+TITLE:    Salmonella bongori Provides Insights into the Evolution of the Salmonellae
+LINK:     https://journals.plos.org/plosone/article?id=10.1371/journal.ppat.1002191
+JOURNAL:  PLoS Pathogens (2011)
+AUTHORS:  
+
+ABSTRACT:
+
+        The genus Salmonella contains two species, S. bongori and S. enterica. Compared to the well-studied S. enterica there is a marked lack of information regarding the genetic makeup and diversity of S. bongori. S. bongori has been found predominantly associated with cold-blooded animals, but it can infect humans. To define the phylogeny of this species, and compare it to S. enterica, we have sequenced 28 isolates representing most of the known diversity of S. bongori. This cross-species analysis allowed us to confidently differentiate ancestral functions from those acquired following speciation, which include both metabolic and virulence-associated capacities. We show that, although S. bongori inherited a basic set of Salmonella common virulence functions, it has subsequently elaborated on this in a different direction to S. enterica. It is an established feature of S. enterica evolution that the acquisition of the type III secretion systems (T3SS-1 and T3SS-2) has been followed by the sequential acquisition of genes encoding secreted targets, termed effectors proteins. We show that this is also true of S. bongori, which has acquired an array of novel effector proteins (sboA-L). All but two of these effectors have no significant S. enterica homologues and instead are highly similar to those found in enteropathogenic Escherichia coli (EPEC). Remarkably, SboH is found to be a chimeric effector protein, encoded by a fusion of the T3SS-1 effector gene sopA and a gene highly similar to the EPEC effector nleH from enteropathogenic E. coli. We demonstrate that representatives of these new effectors are translocated and that SboH, similarly to NleH, blocks intrinsic apoptotic pathways while being targeted to the mitochondria by the SopA part of the fusion. This work suggests that S. bongori has inherited the ancestral Salmonella virulence gene set, but has adapted by incorporating virulence determinants that resemble those employed by EPEC.
+      Author Summary: The bacterial genus Salmonella consists of two species: Salmonella enterica and Salmonella bongori. Salmonella are common causes of food poisoning in humans and can also cause more severe disease such as typhoid fever. Most of the Salmonella that cause disease in humans and animals are members of S. enterica. On the other hand S. bongori, is largely associated with reptiles but can cause disease in humans, albeit rarely. We have determined genomes for S. bongori isolates representing its known diversity. Using this, and existing genome information for a large number of different members of S. enterica, we were able to identify functions found in both species, and therefore likely to be ancestral, and differentiate them from those that have been more recently acquired. This information gives us more perspective on how pathogens evolve over the longer-term and allows us to identify functions that are associated exclusively with isolates that commonly cause disease in humans. Our analysis suggests that when S. bongori and S. enterica diverged they evolved to occupy very different niches. 
+
+================================================================================
+
+Result #10  [Crossref]
+----------------------------------------
+TITLE:    Salmonella
+LINK:     https://doi.org/10.3390/books978-3-0365-0913-6
+JOURNAL:  Crossref (2021)
+AUTHORS:  
+
+ABSTRACT:
+Abstract available at link.
+
+================================================================================
+
+Result #11  [Crossref]
+----------------------------------------
+TITLE:    Salmonella blood culture surveillance: Salmonella serotyping  v1
+LINK:     https://doi.org/10.17504/protocols.io.9q7h5zn
+JOURNAL:  Crossref (N/A)
+AUTHORS:  Jacobs Jan
+
+ABSTRACT:
+Abstract available at link.
+
+================================================================================
+
+Result #12  [Crossref]
+----------------------------------------
+TITLE:    The Salmonella
+LINK:     https://doi.org/10.1201/9781351076524-1
+JOURNAL:  Salmonella (2018)
+AUTHORS:  Rufus K. Guthrie
+
+ABSTRACT:
+Abstract available at link.
+
+================================================================================
+
